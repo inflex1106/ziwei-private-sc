@@ -7,6 +7,7 @@ import type { Palace } from '../lib/ziwei/types';
 import { renderMarkdown } from '../lib/markdown';
 import Notes from './Notes';
 import AskBox, { type AskFn } from './AskBox';
+import CopyButton, { toPlain } from './CopyButton';
 
 const HUA_CLS: Record<string, string> = { 禄: 'lu', 权: 'quan', 科: 'ke', 忌: 'ji' };
 
@@ -267,6 +268,7 @@ export default function ZiweiApp({
             {loading && !report && <p className="legend">생각하는 중… (보통 10~40초 걸려요)</p>}
             {report && <article className="report" dangerouslySetInnerHTML={{ __html: renderMarkdown(report) }} />}
             {report && !loading && reportModel && <p className="model-tag">🤖 {reportModel}</p>}
+            {report && !loading && <CopyButton label="리포트 복사" getText={() => toPlain(report)} />}
             {report && !loading && submitted && requestAnswer && (
               <AskBox key={report} form={submitted} report={report} requestAnswer={requestAnswer} privacyNote={privacyNote} />
             )}

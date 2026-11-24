@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { BirthForm } from '../lib/build';
 import { QA_LIMITS, type QA } from '../lib/prompt';
 import { renderMarkdown } from '../lib/markdown';
+import CopyButton, { toPlain } from './CopyButton';
 
 export type AskFn = (
   form: BirthForm,
@@ -69,12 +70,20 @@ export default function AskBox({
             <>
               <article className="report" dangerouslySetInnerHTML={{ __html: renderMarkdown(it.a) }} />
               {models[i] && <p className="model-tag">🤖 {models[i]}</p>}
+              {it !== pending && <CopyButton label="답변 복사" getText={() => `Q. ${it.q}\n\n${toPlain(it.a)}`} />}
             </>
           ) : (
             <p className="legend">생각하는 중… (보통 10~30초 걸려요)</p>
           )}
         </div>
       ))}
+
+      {history.length > 0 && !pending && (
+        <CopyButton
+          label="리포트와 질문·답변 전체 복사"
+          getText={() => [toPlain(report), ...history.map((h) => `Q. ${h.q}\n\n${toPlain(h.a)}`)].join('\n\n――――――\n\n')}
+        />
+      )}
 
       {history.length === 0 && !pending && (
         <div className="chips">
