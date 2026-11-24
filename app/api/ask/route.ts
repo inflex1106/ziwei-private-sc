@@ -3,6 +3,8 @@ import type { BirthForm } from '@/lib/build';
 import { QA_SYSTEM, buildQuestionPrompt, type QA } from '@/lib/prompt';
 
 export const runtime = 'nodejs';
+// AI가 길게 생각하고 쓰는 동안 서버 함수가 중간에 끊기지 않게 (Vercel 최대 5분)
+export const maxDuration = 300;
 
 /** 추가 질문. 질문·답변은 저장하지 않으며, 이전 대화는 브라우저가 요청마다 보내 준다. */
 export async function POST(req: Request) {

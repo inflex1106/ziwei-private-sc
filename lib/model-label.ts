@@ -1,6 +1,9 @@
 /** 응답 끝에 붙는 "실제 답변 모델" 표시. 서버는 본문 뒤에 MODEL_MARK + JSON 을 붙인다. */
 export const MODEL_MARK = '\u001eMODEL:';
 
+/** 연결 유지용으로 서버가 몇 초마다 보내는 보이지 않는 글자. 화면에 보이기 전에 지운다. */
+export const HEARTBEAT = '\u2060';
+
 export type ModelInfo = { id: string; fallback: boolean };
 
 const NAMES: Record<string, string> = {
@@ -28,6 +31,7 @@ export function modelLabel(info: ModelInfo | null | undefined): string {
 
 /** 스트림으로 받은 전체 문자열에서 본문과 모델 정보를 나눈다. */
 export function splitModel(raw: string): { text: string; model: ModelInfo | null } {
+  raw = raw.split(HEARTBEAT).join('');
   const i = raw.indexOf(MODEL_MARK);
   if (i < 0) return { text: raw, model: null };
   try {

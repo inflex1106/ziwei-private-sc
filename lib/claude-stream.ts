@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { MODEL_MARK, type ModelInfo } from './model-label';
+import { MODEL_MARK, HEARTBEAT, type ModelInfo } from './model-label';
 
 /**
  * Claude 호출 → 텍스트 스트림 응답.
@@ -22,6 +22,11 @@ export function streamClaude(system: string, userContent: string, maxTokens = 16
   const encoder = new TextEncoder();
   const body = new ReadableStream<Uint8Array>({
     async start(controller) {
+      // AI가 생각하는 동안(첫 글자까지 1분 넘게 걸리기도 함) 아무것도 안 보내면
+      // 휴대폰 브라우저(Safari 등)나 중간 네트워크가 연결을 끊는다("Load failed").
+      // 그래서 몇 초마다 보이지 않는 글자(HEARTBEAT)를 보내 연결을 살려 둔다. 화면에서는 지운다.
+      controller.enqueue(encoder.encode(HEARTBEAT));
+      const beat = setInterval(() => controller.enqueue(encoder.encode(HEARTBEAT)), 5000);
       try {
         for await (const event of stream) {
           if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
@@ -49,6 +54,7 @@ export function streamClaude(system: string, userContent: string, maxTokens = 16
           controller.enqueue(encoder.encode('\n\n[오류] 알 수 없는 오류가 발생했습니다.'));
         }
       } finally {
+        clearInterval(beat);
         controller.close();
       }
     },
